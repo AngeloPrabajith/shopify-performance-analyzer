@@ -3,7 +3,12 @@
     "allow": [
       "Bash(npm --version)",
       "Bash(npx playwright:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npm run:*)",
+      "Bash(npx eslint:*)",
+      "Bash(ls /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/eslint.config.*)",
+      "Bash(ls -la /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/eslint*)"
     ]
   }
 }

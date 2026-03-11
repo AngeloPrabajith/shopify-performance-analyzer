@@ -11,7 +11,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "echo \"ESLint not configured yet\"",
+    "lint": "eslint src/",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "test": "echo \"No test framework yet\""
   },
   "engines": {
@@ -20,6 +22,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^25.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
     "typescript": "^5.9.3"
   }
 }
