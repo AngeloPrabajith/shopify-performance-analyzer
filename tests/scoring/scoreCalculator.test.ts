@@ -26,26 +26,50 @@ describe('calculateScore', () => {
     expect(score.overall).toBe(100);
   });
 
-  it('deducts 15 points per critical issue', () => {
+  it('deducts 10 points per critical issue', () => {
     const issues = [makeIssue('critical')];
-    const score = calculateScore(issues, []);
-    expect(score.overall).toBe(85);
-  });
-
-  it('deducts 5 points per warning', () => {
-    const issues = [makeIssue('warning'), makeIssue('warning')];
     const score = calculateScore(issues, []);
     expect(score.overall).toBe(90);
   });
 
-  it('deducts 1 point per info issue', () => {
+  it('deducts 3 points per warning', () => {
+    const issues = [makeIssue('warning'), makeIssue('warning')];
+    const score = calculateScore(issues, []);
+    expect(score.overall).toBe(94);
+  });
+
+  it('deducts 0.5 points per info issue', () => {
     const issues = [makeIssue('info'), makeIssue('info'), makeIssue('info')];
     const score = calculateScore(issues, []);
-    expect(score.overall).toBe(97);
+    // 3 * 0.5 = 1.5, rounded to 99
+    expect(score.overall).toBe(99);
+  });
+
+  it('caps deductions per rule at 25 points', () => {
+    // 10 warnings from the same rule = 30 raw, but capped to 25
+    const issues = Array.from({ length: 10 }, () => makeIssue('warning'));
+    const score = calculateScore(issues, []);
+    expect(score.overall).toBe(75);
+  });
+
+  it('applies separate caps for different rules', () => {
+    const issues = [
+      ...Array.from({ length: 10 }, () => makeIssue('warning', 'rule-a')),
+      ...Array.from({ length: 10 }, () => makeIssue('warning', 'rule-b')),
+    ];
+    const score = calculateScore(issues, []);
+    // Each capped at 25, total deduction = 50
+    expect(score.overall).toBe(50);
   });
 
   it('never drops below 0', () => {
-    const issues = Array.from({ length: 10 }, () => makeIssue('critical'));
+    const issues = [
+      ...Array.from({ length: 10 }, () => makeIssue('critical', 'rule-a')),
+      ...Array.from({ length: 10 }, () => makeIssue('critical', 'rule-b')),
+      ...Array.from({ length: 10 }, () => makeIssue('critical', 'rule-c')),
+      ...Array.from({ length: 10 }, () => makeIssue('critical', 'rule-d')),
+      ...Array.from({ length: 10 }, () => makeIssue('critical', 'rule-e')),
+    ];
     const score = calculateScore(issues, []);
     expect(score.overall).toBe(0);
   });
@@ -68,7 +92,7 @@ describe('calculateScore', () => {
       makeIssue('warning', 'image-optimization'),
     ];
     const score = calculateScore(issues, []);
-    expect(score.categories['scripts']).toBe(95);
-    expect(score.categories['images']).toBe(95);
+    expect(score.categories['scripts']).toBe(97);
+    expect(score.categories['images']).toBe(97);
   });
 });
