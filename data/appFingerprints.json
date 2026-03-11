@@ -1,0 +1,102 @@
+[
+  {
+    "appName": "Afterpay",
+    "vendor": "Afterpay",
+    "domains": ["static.afterpay.com", "js.afterpay.com"]
+  },
+  {
+    "appName": "Bold Commerce",
+    "vendor": "Bold",
+    "domains": ["bold.ly", "boldcommerce.com", "boldapps.net"]
+  },
+  {
+    "appName": "Facebook Pixel",
+    "vendor": "Meta",
+    "domains": ["connect.facebook.net"]
+  },
+  {
+    "appName": "Google Analytics",
+    "vendor": "Google",
+    "domains": ["www.google-analytics.com", "www.googletagmanager.com", "analytics.google.com"]
+  },
+  {
+    "appName": "Gorgias",
+    "vendor": "Gorgias",
+    "domains": ["config.gorgias.chat", "client.gorgias.io"]
+  },
+  {
+    "appName": "Hotjar",
+    "vendor": "Hotjar",
+    "domains": ["static.hotjar.com", "script.hotjar.com"]
+  },
+  {
+    "appName": "Judge.me",
+    "vendor": "Judge.me",
+    "domains": ["cache.judge.me", "judgeme.imgix.net"]
+  },
+  {
+    "appName": "Klaviyo",
+    "vendor": "Klaviyo",
+    "domains": ["static.klaviyo.com", "a.klaviyo.com", "static-tracking.klaviyo.com"]
+  },
+  {
+    "appName": "Klarna",
+    "vendor": "Klarna",
+    "domains": ["js.klarna.com", "x.klarnacdn.net"]
+  },
+  {
+    "appName": "Loox Reviews",
+    "vendor": "Loox",
+    "domains": ["loox.io", "loox-cdn.com"]
+  },
+  {
+    "appName": "Lucky Orange",
+    "vendor": "Lucky Orange",
+    "domains": ["d10lpsik1i8c69.cloudfront.net", "luckyorange.com"]
+  },
+  {
+    "appName": "Omnisend",
+    "vendor": "Omnisend",
+    "domains": ["omnisrc.com", "omnisnippet1.com"]
+  },
+  {
+    "appName": "Pinterest Tag",
+    "vendor": "Pinterest",
+    "domains": ["s.pinimg.com", "ct.pinterest.com"]
+  },
+  {
+    "appName": "Privy",
+    "vendor": "Privy",
+    "domains": ["widget.privy.com", "dashboard.privy.com"]
+  },
+  {
+    "appName": "ReCharge",
+    "vendor": "ReCharge",
+    "domains": ["rechargecdn.com", "rechargepayments.com"]
+  },
+  {
+    "appName": "Smile.io",
+    "vendor": "Smile.io",
+    "domains": ["js.smile.io"]
+  },
+  {
+    "appName": "Stamped.io",
+    "vendor": "Stamped",
+    "domains": ["stamped.io", "cdn-stamped-io.azureedge.net"]
+  },
+  {
+    "appName": "TikTok Pixel",
+    "vendor": "TikTok",
+    "domains": ["analytics.tiktok.com"]
+  },
+  {
+    "appName": "Tidio",
+    "vendor": "Tidio",
+    "domains": ["code.tidio.co", "widget-v4.tidiochat.com"]
+  },
+  {
+    "appName": "Yotpo",
+    "vendor": "Yotpo",
+    "domains": ["staticw2.yotpo.com", "api.yotpo.com"]
+  }
+]
