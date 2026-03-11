@@ -16,8 +16,12 @@ function formatKb(bytes: number): string {
 
 function extractFilename(url: string): string {
   try {
-    const pathname = new URL(url).pathname;
-    return pathname.split('/').pop() || url;
+    const parsed = new URL(url);
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    const last = segments.pop() || '';
+    if (last.includes('.')) return last;
+    if (last.length > 2) return `${parsed.hostname}/${last}`;
+    return parsed.hostname + parsed.pathname;
   } catch {
     return url;
   }

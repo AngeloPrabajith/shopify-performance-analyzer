@@ -1,17 +1,20 @@
 import type { AnalysisRule } from '../../types/rules.js';
 
-// Known libraries and patterns to match against script URLs
+// Each pattern matches a specific library bundle. The regex uses word
+// boundaries or path separators so related-but-different modules
+// (e.g. swiper.js vs swiper-core.js) are not treated as the same lib.
 const LIBRARY_PATTERNS: Record<string, RegExp> = {
-  jQuery: /jquery[.\-\/]/i,
-  Lodash: /lodash[.\-\/]/i,
-  Moment: /moment[.\-\/]/i,
-  React: /react(?:\.production|\.development|[\-.]dom)[.\-\/]/i,
-  Vue: /vue[.\-\/](?!tify)/i,
-  Angular: /angular[.\-\/]/i,
-  Swiper: /swiper[.\-\/]/i,
-  GSAP: /gsap[.\-\/]/i,
-  Slick: /slick[.\-\/]/i,
-  Owl: /owl\.carousel[.\-\/]/i,
+  jQuery: /\/jquery(?:[.\-]\d|\.min\.js|\.js)/i,
+  Lodash: /\/lodash(?:[.\-]\d|\.min\.js|\.js|\.core)/i,
+  Moment: /\/moment(?:[.\-]\d|\.min\.js|\.js)/i,
+  React: /\/react(?:\.production|\.development)(?:\.min)?\.js/i,
+  'React DOM': /\/react-dom(?:\.production|\.development)/i,
+  Vue: /\/vue(?:[.\-]\d|\.min\.js|\.global|\.esm)/i,
+  Angular: /\/angular(?:[.\-]\d|\.min\.js)/i,
+  Swiper: /\/swiper(?:[.\-]\d|\.min\.js|\.bundle)/i,
+  GSAP: /\/gsap(?:[.\-]\d|\.min\.js)/i,
+  Slick: /\/slick(?:[.\-]\d|\.min\.js)/i,
+  'Owl Carousel': /\/owl\.carousel/i,
 };
 
 function stripQueryString(url: string): string {
