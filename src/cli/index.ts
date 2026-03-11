@@ -5,19 +5,32 @@ import { validateUrl } from './validator.js';
 import { formatReport } from './formatter.js';
 import { createSpinner } from './spinner.js';
 
-function parseArgs(argv: string[]) {
+interface CliFlags {
+  json: boolean;
+  verbose: boolean;
+  timeout: number;
+  url: string;
+}
+
+function parseArgs(argv: string[]): CliFlags {
   const args = argv.slice(2);
-  const flags = {
+  const flags: CliFlags = {
     json: false,
     verbose: false,
+    timeout: 30000,
     url: '',
   };
 
-  for (const arg of args) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
     if (arg === '--json') {
       flags.json = true;
     } else if (arg === '--verbose') {
       flags.verbose = true;
+    } else if (arg === '--timeout' && args[i + 1]) {
+      const val = parseInt(args[i + 1], 10);
+      if (!isNaN(val) && val > 0) flags.timeout = val;
+      i++; // skip the value
     } else if (!arg.startsWith('--')) {
       flags.url = arg;
     }
@@ -31,12 +44,14 @@ function printUsage() {
   Usage: shopify-analyze <url> [options]
 
   Options:
-    --json      Output raw JSON instead of formatted report
-    --verbose   Show detailed request information
+    --json           Output raw JSON instead of formatted report
+    --verbose        Show detailed request information
+    --timeout <ms>   Navigation timeout in milliseconds (default: 30000)
 
   Examples:
     shopify-analyze https://store.myshopify.com
     shopify-analyze store.myshopify.com --json
+    shopify-analyze store.myshopify.com --timeout 60000
   `);
 }
 
@@ -60,8 +75,17 @@ async function main() {
   const spinner = createSpinner(`Analyzing ${url}...`);
   spinner.start();
 
+  // Clean up on Ctrl+C
+  const handleSigint = () => {
+    spinner.stop('Cancelled.');
+    process.exit(130);
+  };
+  process.on('SIGINT', handleSigint);
+
   try {
-    const { result, apps, score } = await analyze(url);
+    const { result, apps, score } = await analyze(url, {
+      timeout: flags.timeout,
+    });
     spinner.stop();
 
     if (flags.json) {
@@ -71,7 +95,9 @@ async function main() {
       console.log(report);
 
       if (flags.verbose) {
-        console.log(`\n  Total requests captured: ${result.metadata.totalRequests}`);
+        console.log(
+          `\n  Total requests captured: ${result.metadata.totalRequests}`,
+        );
         for (const issue of result.issues) {
           if (issue.resourceUrl) {
             console.log(`    ${issue.resourceUrl}`);
@@ -85,6 +111,8 @@ async function main() {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`\n  Analysis failed: ${message}\n`);
     process.exit(1);
+  } finally {
+    process.removeListener('SIGINT', handleSigint);
   }
 }
 

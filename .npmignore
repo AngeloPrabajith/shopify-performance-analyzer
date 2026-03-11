@@ -1,0 +1,11 @@
+src/
+tests/
+docs/
+.github/
+.editorconfig
+.prettierrc
+eslint.config.js
+vitest.config.ts
+tsconfig.json
+.dev-plan.md
+coverage/

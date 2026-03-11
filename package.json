@@ -8,6 +8,24 @@
   "bin": {
     "shopify-analyze": "./dist/cli/index.js"
   },
+  "keywords": [
+    "shopify",
+    "performance",
+    "analyzer",
+    "cli",
+    "playwright",
+    "storefront",
+    "web-performance"
+  ],
+  "author": "Angelo Prabajith",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angeloprabajith/shopify-performance-analyzer"
+  },
+  "files": [
+    "dist/",
+    "data/"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -15,7 +33,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm run test"
   },
   "engines": {
     "node": ">=18"

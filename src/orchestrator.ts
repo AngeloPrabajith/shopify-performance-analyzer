@@ -6,15 +6,22 @@ import { runRules, getDefaultRules } from './analyzer/index.js';
 import { detectApps, loadFingerprints } from './detectors/index.js';
 import { calculateScore } from './scoring/index.js';
 
+export interface AnalyzeOptions {
+  timeout?: number;
+}
+
 export interface AnalyzeOutput {
   result: AnalysisResult;
   apps: DetectedApp[];
   score: ScoreBreakdown;
 }
 
-export async function analyze(url: string): Promise<AnalyzeOutput> {
+export async function analyze(
+  url: string,
+  options: AnalyzeOptions = {},
+): Promise<AnalyzeOutput> {
   // Scrape the page
-  const pageData = await scrapePage(url);
+  const pageData = await scrapePage(url, { timeout: options.timeout });
 
   // Run analysis rules
   const rules = getDefaultRules();
