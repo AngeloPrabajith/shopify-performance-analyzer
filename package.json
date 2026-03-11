@@ -1,0 +1,25 @@
+{
+  "name": "shopify-performance-analyzer",
+  "version": "0.1.0",
+  "description": "Analyze Shopify storefront performance and detect common issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "shopify-analyze": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "echo \"ESLint not configured yet\"",
+    "test": "echo \"No test framework yet\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "typescript": "^5.9.3"
+  }
+}
