@@ -14,6 +14,8 @@ export interface PageMetadata {
   loadTime: number;
   totalRequests: number;
   totalTransferSize: number;
+  fcp: number | null;
+  lcp: number | null;
 }
 
 export interface AnalysisResult {

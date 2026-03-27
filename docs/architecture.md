@@ -71,11 +71,11 @@ Domain matching supports both exact matches and subdomain matching (e.g., `sub.s
 ### Scoring (`src/scoring/`)
 
 Converts analysis issues into a 0-100 performance score using severity-based deductions:
-- Critical: -15 points
-- Warning: -5 points
-- Info: -1 point
+- Critical: -10 points
+- Warning: -3 points
+- Info: -0.5 points
 
-An additional 5-point penalty applies when more than 10 apps are detected. The score is also broken down by category (scripts, images, third-party).
+Each rule can deduct a maximum of 25 points (per-rule cap) to prevent a single noisy rule from dominating the score. An additional 5-point penalty applies when more than 10 apps are detected. The score is also broken down by category (scripts, images, third-party).
 
 Letter grades map to score ranges: A (90-100), B (70-89), C (50-69), D (below 50).
 

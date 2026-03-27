@@ -20,4 +20,7 @@ export interface PageLoadResult {
   headScripts: HeadScript[];
   loadTime: number;
   domContentLoaded: number;
+  fcp: number | null;
+  lcp: number | null;
+  linkedPages: { product: string | null; collection: string | null };
 }

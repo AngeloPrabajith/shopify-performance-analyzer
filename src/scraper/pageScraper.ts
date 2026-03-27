@@ -39,9 +39,12 @@ async function scrapeOnce(
 
   try {
     const response = await page.goto(url, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
       timeout,
     });
+
+    // Give extra time for lazy-loaded scripts and app resources to fire
+    await page.waitForTimeout(3000);
 
     // Check for HTTP errors
     if (response && response.status() >= 400) {
@@ -64,11 +67,27 @@ async function scrapeOnce(
       const perf = performance.getEntriesByType(
         'navigation',
       )[0] as PerformanceNavigationTiming;
+
+      const paintEntries = performance.getEntriesByType('paint');
+      const fcpEntry = paintEntries.find(
+        (e) => e.name === 'first-contentful-paint',
+      );
+
+      // LCP entries are buffered and accessible after page load
+      const lcpEntries = performance.getEntriesByType(
+        'largest-contentful-paint',
+      );
+      const lastLcp = lcpEntries[lcpEntries.length - 1] as
+        | PerformanceEntry
+        | undefined;
+
       return {
         loadTime: Math.round(perf.loadEventEnd - perf.startTime),
         domContentLoaded: Math.round(
           perf.domContentLoadedEventEnd - perf.startTime,
         ),
+        fcp: fcpEntry ? Math.round(fcpEntry.startTime) : null,
+        lcp: lastLcp ? Math.round(lastLcp.startTime) : null,
       };
     });
 
@@ -82,6 +101,25 @@ async function scrapeOnce(
       }));
     });
 
+    // Discover Shopify product and collection links for multi-page scanning
+    const linkedPages = await page.evaluate(() => {
+      const origin = window.location.origin;
+      const seen = { product: null as string | null, collection: null as string | null };
+      const links = document.querySelectorAll('a[href]');
+      for (const a of Array.from(links)) {
+        const href = a.getAttribute('href') || '';
+        const abs = href.startsWith('http') ? href : `${origin}${href}`;
+        if (!seen.product && href.includes('/products/') && !href.includes('?') && !href.includes('#')) {
+          seen.product = abs;
+        }
+        if (!seen.collection && href.includes('/collections/') && !href.includes('?') && !href.includes('#')) {
+          seen.collection = abs;
+        }
+        if (seen.product && seen.collection) break;
+      }
+      return seen;
+    });
+
     // Map all captured responses to our NetworkRequest format
     const requests = await Promise.all(
       responses.map((r) => mapResponseToRequest(r).catch(() => null)),
@@ -93,6 +131,9 @@ async function scrapeOnce(
       headScripts,
       loadTime: timing.loadTime,
       domContentLoaded: timing.domContentLoaded,
+      fcp: timing.fcp,
+      lcp: timing.lcp,
+      linkedPages,
     };
   } finally {
     await browser.close();

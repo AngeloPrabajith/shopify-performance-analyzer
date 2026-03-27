@@ -35,6 +35,9 @@ export function createMockPageLoadResult(
     headScripts: [],
     loadTime: 2400,
     domContentLoaded: 1800,
+    fcp: null,
+    lcp: null,
+    linkedPages: { product: null, collection: null },
     ...overrides,
   };
 }

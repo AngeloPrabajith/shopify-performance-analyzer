@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/*
+ * ALL custom CSS must go inside @layer to avoid overriding
+ * Tailwind utilities. Unlayered CSS beats layered CSS in the cascade.
+ */
+
+@layer base {
+  :root {
+    --bg-base: #0F172A;
+    --bg-card: #1E293B;
+    --accent: #22C55E;
+    --accent-glow: rgba(34, 197, 94, 0.3);
+    --glass-bg: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --blur: 16px;
+    --radius: 16px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #0F172A;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay for depth */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0F172A; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  /* Focus ring */
+  *:focus-visible {
+    outline: 2px solid #22C55E;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Glass card utility */
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+  }
+
+  .glass-hover {
+    transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1), 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Gradient orb */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.3;
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, #1E293B 25%, #243351 50%, #1E293B 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+}
+
+@layer utilities {
+  /* Override Tailwind's font-mono with Fira Code */
+  .font-mono {
+    font-family: 'Fira Code', monospace;
+  }
+}
+
+/* Keyframes are fine unlayered — they don't affect cascade */
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}

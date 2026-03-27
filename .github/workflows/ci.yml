@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   build-and-test:
@@ -29,7 +29,7 @@ jobs:
         run: npm run lint
 
       - name: Build
-        run: npm run build
+        run: npm run build:core
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps

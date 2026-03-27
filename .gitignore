@@ -1,12 +1,20 @@
 node_modules/
 dist/
 
+# Next.js build output
+web/.next/
+
 # Environment
 .env
 .env.local
+web/.env.local
+
+# Claude Code (local AI tool config)
+.claude/
 
 # Dev planning (private)
 .dev-plan.md
+design-system/
 
 # OS files
 .DS_Store
@@ -17,6 +25,9 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Python cache
+__pycache__/
 
 # Coverage
 coverage/
