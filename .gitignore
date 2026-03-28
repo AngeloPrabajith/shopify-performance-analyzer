@@ -9,7 +9,7 @@ web/.next/
 .env.local
 web/.env.local
 
-# Claude Code (local AI tool config)
+# Local AI tool config
 .claude/
 
 # Dev planning (private)

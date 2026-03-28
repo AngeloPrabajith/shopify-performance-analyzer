@@ -37,7 +37,7 @@ const SEVERITY_CONFIG = {
 
 const RULE_DESCRIPTIONS: Record<string, string> = {
   "heavy-scripts": "Large JavaScript files significantly increase parse and execution time.",
-  "duplicate-libraries": "Multiple versions of the same library loaded — wasted bytes and potential conflicts.",
+  "duplicate-libraries": "Multiple versions of the same library loaded, wasting bytes and causing potential conflicts.",
   "render-blocking": "Scripts loaded synchronously in <head> block the browser from rendering any content.",
   "image-optimization": "Images served without compression or modern formats (WebP/AVIF).",
   "third-party-impact": "External scripts from third parties add latency beyond your control.",

@@ -71,7 +71,7 @@ export function AppTable({ apps }: AppTableProps) {
           }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-          High app count ({apps.length}) — each app adds scripts and network requests.
+          High app count ({apps.length}). Each app adds scripts and network requests.
           Consider auditing for unused apps.
         </div>
       )}

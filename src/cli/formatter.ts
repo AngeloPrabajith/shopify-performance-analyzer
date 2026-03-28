@@ -151,7 +151,7 @@ export function formatReport(
 
   lines.push('');
   lines.push(divider());
-  lines.push(`  ${chalk.bold('Shopify Performance Report')}`);
+  lines.push(`  ${chalk.bold('Loadly Report')}`);
   lines.push(`  ${chalk.gray(metadata.url)}`);
   lines.push(
     `  ${chalk.gray(`${metadata.totalRequests} requests, ${formatKb(metadata.totalTransferSize)} transferred, loaded in ${(metadata.loadTime / 1000).toFixed(2)}s`)}`,

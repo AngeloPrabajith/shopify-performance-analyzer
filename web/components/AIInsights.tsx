@@ -208,7 +208,7 @@ export function AIInsights({ analyzeOutput }: AIInsightsProps) {
         <div>
           <h3 className="text-sm font-semibold text-slate-100">AI Insights</h3>
           <p className="text-xs" style={{ color: "#64748B" }}>
-            Powered by Claude Haiku
+            Powered by AI
           </p>
         </div>
       </div>
@@ -218,7 +218,7 @@ export function AIInsights({ analyzeOutput }: AIInsightsProps) {
           <div className="flex flex-col items-center gap-4 py-8">
             <div className="flex items-center gap-2" style={{ color: "#22C55E" }}>
               <Loader2 size={20} className="animate-spin" />
-              <span className="text-sm">Claude is analyzing your store...</span>
+              <span className="text-sm">AI is analyzing your store...</span>
             </div>
             <div className="space-y-2 w-full max-w-lg">
               {[75, 55, 65, 45].map((w, i) => (

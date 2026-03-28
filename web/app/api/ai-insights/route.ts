@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "AI insights unavailable — ANTHROPIC_API_KEY not set." },
+      { error: "AI insights unavailable - API key not set." },
       { status: 503 }
     );
   }
@@ -74,7 +74,7 @@ Maximum 5 topFixes.`;
 
   try {
     const message = await client.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1400,
       messages: [{ role: "user", content: prompt }],
     });

@@ -7,15 +7,17 @@ import {
   ArrowLeft,
   RefreshCw,
   AlertTriangle,
-  Zap,
   Filter,
   ChevronDown,
   Home,
   ShoppingBag,
   Grid3X3,
   Download,
+  Search,
+  Loader2,
+  X,
 } from "lucide-react";
-import type { AnalyzeOutput, PageType } from "@analyzer";
+import type { AnalyzeOutput, PageType, ScannedPage } from "@analyzer";
 import { AnalyzingScreen } from "@/components/AnalyzingScreen";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { MetadataBar } from "@/components/MetadataBar";
@@ -94,6 +96,60 @@ function ResultsContent() {
   }, [runAnalysis]);
 
   const [exporting, setExporting] = useState(false);
+  const [pdpUrl, setPdpUrl] = useState("");
+  const [pdpScanning, setPdpScanning] = useState(false);
+  const [pdpError, setPdpError] = useState<string | null>(null);
+  const [pdpDismissed, setPdpDismissed] = useState(false);
+
+  const isMissingPdp =
+    scope === "full" &&
+    !pdpDismissed &&
+    output?.missingPageTypes?.includes("product");
+
+  const handleAddPdp = useCallback(async () => {
+    if (!output || !pdpUrl.trim() || pdpScanning) return;
+    const normalized = pdpUrl.startsWith("http") ? pdpUrl : `https://${pdpUrl}`;
+
+    try {
+      new URL(normalized);
+    } catch {
+      setPdpError("Enter a valid URL");
+      return;
+    }
+
+    setPdpScanning(true);
+    setPdpError(null);
+
+    try {
+      const res = await fetch("/api/analyze-page", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: normalized, pageType: "product" }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Request failed (HTTP ${res.status})`);
+      }
+
+      const page: ScannedPage = await res.json();
+
+      setOutput((prev) => {
+        if (!prev) return prev;
+        const existingPages = prev.pages ?? [{ pageType: "homepage" as PageType, result: prev.result, score: prev.score }];
+        return {
+          ...prev,
+          pages: [...existingPages, page],
+          missingPageTypes: prev.missingPageTypes?.filter((t) => t !== "product"),
+        };
+      });
+      setPdpDismissed(true);
+    } catch (err) {
+      setPdpError(err instanceof Error ? err.message : "Failed to scan product page");
+    } finally {
+      setPdpScanning(false);
+    }
+  }, [output, pdpUrl, pdpScanning]);
 
   const handleExportPdf = useCallback(async () => {
     if (!output || exporting) return;
@@ -243,12 +299,10 @@ function ResultsContent() {
           New Scan
         </button>
 
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22C55E, #16A34A)" }}>
-            <Zap size={12} className="text-white" />
-          </div>
-          <span className="text-sm font-medium text-slate-300 hidden sm:block">Shopify Analyzer</span>
-        </div>
+        <button onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
+          <img src="/logo.svg" alt="Loadly" className="w-7 h-7" />
+          <span className="text-sm font-medium text-slate-300 hidden sm:block">Loadly</span>
+        </button>
 
         <div className="flex items-center gap-2">
           {output && (
@@ -337,6 +391,109 @@ function ResultsContent() {
                   </button>
                 );
               })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Missing PDP prompt */}
+        {isMissingPdp && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.18 }}
+          >
+            <div
+              className="rounded-2xl p-5"
+              style={{
+                background: "rgba(245, 158, 11, 0.04)",
+                border: "1px solid rgba(245, 158, 11, 0.2)",
+              }}
+            >
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: "rgba(245,158,11,0.12)" }}
+                  >
+                    <ShoppingBag size={16} style={{ color: "#F59E0B" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-100">
+                      Product page not found
+                    </h3>
+                    <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                      We couldn&apos;t find a product link on the homepage. Enter a product URL to include it in the analysis.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPdpDismissed(true)}
+                  className="shrink-0 p-1 rounded-md cursor-pointer transition-colors"
+                  style={{ color: "#475569" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#94A3B8")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#475569")}
+                  aria-label="Dismiss"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => { e.preventDefault(); handleAddPdp(); }}
+                className="flex items-center gap-2"
+              >
+                <div
+                  className="flex items-center gap-2 flex-1 px-3 py-2 rounded-xl"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  <Search size={14} style={{ color: "#475569", flexShrink: 0 }} />
+                  <input
+                    type="url"
+                    value={pdpUrl}
+                    onChange={(e) => { setPdpUrl(e.target.value); if (pdpError) setPdpError(null); }}
+                    placeholder="https://store.com/products/example-product"
+                    className="flex-1 bg-transparent border-none outline-none text-sm text-slate-100 placeholder-slate-600"
+                    disabled={pdpScanning}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={pdpScanning || !pdpUrl.trim()}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all duration-200 shrink-0"
+                  style={{
+                    background: "rgba(245,158,11,0.15)",
+                    border: "1px solid rgba(245,158,11,0.3)",
+                    color: "#F59E0B",
+                    opacity: pdpScanning || !pdpUrl.trim() ? 0.5 : 1,
+                  }}
+                >
+                  {pdpScanning ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Scanning...
+                    </>
+                  ) : (
+                    "Scan"
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPdpDismissed(true)}
+                  className="px-3 py-2 rounded-xl text-sm cursor-pointer transition-colors"
+                  style={{ color: "#475569" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#94A3B8")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#475569")}
+                >
+                  Skip
+                </button>
+              </form>
+
+              {pdpError && (
+                <p className="text-xs mt-2 text-red-400 px-1">{pdpError}</p>
+              )}
             </div>
           </motion.div>
         )}
@@ -465,7 +622,7 @@ function ResultsContent() {
         style={{ borderColor: "rgba(255,255,255,0.06)" }}
       >
         <p className="text-xs" style={{ color: "#334155" }}>
-          Shopify Performance Analyzer - Open source, MIT License
+          Loadly - Open source, MIT License
         </p>
       </footer>
     </main>

@@ -1,82 +1,106 @@
-# Shopify Performance Analyzer
+<p align="center">
+  <img src="assets/shopify-scanner-logo.svg" width="120" alt="Loadly logo" />
+</p>
 
-A CLI tool that analyzes Shopify storefronts for performance issues, detects installed apps, and generates actionable reports.
+<h1 align="center">Loadly</h1>
 
-## Quick Start
+<p align="center">
+  Analyze any Shopify storefront for performance issues in seconds.
+</p>
+
+---
+
+Detects heavy scripts, duplicate libraries, render-blocking resources, unoptimized images, third-party bloat, and installed apps. Generates a 0-100 performance score with AI-powered fix recommendations.
+
+<p align="center">
+  <img src="assets/homepage.jpeg" width="700" alt="Loadly homepage" />
+</p>
+
+## Features
+
+- **Core Web Vitals** - Measures TTFB, FCP, LCP, and CLS using the Performance API
+- **Script Analysis** - Flags JavaScript files over 100KB, duplicate libraries, and render-blocking resources
+- **Image Optimization** - Identifies oversized images and legacy formats (PNG, BMP, GIF)
+- **Third-Party Impact** - Measures total weight of external scripts and detects missing preconnect hints
+- **App Detection** - Fingerprints 48 known Shopify apps from network requests
+- **Resource Hints** - Checks for missing `<link rel="preconnect">` and `<link rel="preload">`
+- **AI Insights** - AI-generated fix recommendations with code snippets and priority ranking
+- **Network Waterfall** - Visual timeline of every network request, color-coded by resource type
+- **PDF Export** - Download a print-ready performance report
+- **Multi-Page Scan** - Optionally scans product and collection pages for a full-site audit
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/scan-in-progress.png" width="700" alt="Scan in progress" />
+  <br />
+  <em>Full scan analyzing homepage, product, and collection pages</em>
+</p>
+
+<p align="center">
+  <img src="assets/results-page.png" width="700" alt="Results dashboard" />
+  <br />
+  <em>Performance score, AI insights, category breakdown, and multi-page tabs</em>
+</p>
+
+<p align="center">
+  <img src="assets/results-issues.jpeg" width="700" alt="Issues list" />
+  <br />
+  <em>Issues filtered by severity with expandable details</em>
+</p>
+
+<p align="center">
+  <img src="assets/results-detected-apps.png" width="700" alt="Detected apps" />
+  <br />
+  <em>Detected Shopify apps with request counts and transfer sizes</em>
+</p>
+
+## Web UI
 
 ```bash
-npx shopify-analyze https://your-store.myshopify.com
+cd web && npm install && npm run dev
 ```
 
-## What It Analyzes
+Open http://localhost:3001, paste a Shopify URL, and get a full report with interactive charts, AI insights, and PDF export.
 
-- **Heavy scripts** - Flags JavaScript files over 100kb
-- **Duplicate libraries** - Detects multiple loads of jQuery, Lodash, React, etc.
-- **Render-blocking scripts** - Finds scripts in `<head>` without `async` or `defer`
-- **Image optimization** - Identifies oversized images and legacy formats (PNG, BMP)
-- **Third-party impact** - Measures total weight of external scripts
-- **App detection** - Identifies installed Shopify apps from network requests
+## CLI
 
-## Sample Output
+```bash
+# Quick scan
+node dist/cli/index.js https://allbirds.com
 
-```
-────────────────────────────────────────────────────────────────
-  Shopify Performance Report
-  https://example-store.myshopify.com
-  87 requests, 2.4mb transferred, loaded in 3.20s
-────────────────────────────────────────────────────────────────
-
-  Performance Score
-
-  74 / 100  (B - Good)
-
-    Scripts          65
-    Images           95
-    Third-party      80
-
-────────────────────────────────────────────────────────────────
-
-  Detected Apps
-
-  * Klaviyo (Klaviyo)
-    2 requests, 190.4kb
-  * ReCharge (ReCharge)
-    1 request, 45.2kb
-
-────────────────────────────────────────────────────────────────
-
-  Issues
-
-  X Duplicate library: jQuery loaded 2 times
-    jQuery was found at 2 different URLs.
-
-  ! Heavy script: klaviyo.js (190.4kb)
-    klaviyo.js is 190.4kb, exceeding the 100.0kb threshold.
-
-  ! Render-blocking script: theme.js
-    theme.js is loaded in <head> without async or defer.
-
-  i Legacy format: hero-banner.png
-    Converting to WebP or AVIF could save roughly 58kb.
-
-────────────────────────────────────────────────────────────────
-
-  Summary
-
-  1 critical, 2 warnings, 1 info
-  Potential savings: ~146kb
+# With options
+node dist/cli/index.js https://gymshark.com --timeout 60000
+node dist/cli/index.js https://bombas.com --json
 ```
 
-## CLI Options
+### CLI Options
 
-```
-shopify-analyze <url> [options]
+| Flag | Description |
+|------|-------------|
+| `--json` | Output raw JSON instead of formatted report |
+| `--verbose` | Show detailed request information |
+| `--timeout` | Navigation timeout in milliseconds (default: 30000) |
 
-Options:
-  --json       Output raw JSON instead of formatted report
-  --verbose    Show detailed request information
-  --timeout    Navigation timeout in milliseconds (default: 30000)
-```
+## Tech Stack
+
+- **TypeScript** - Fully typed codebase
+- **Playwright** - Headless Chromium for real browser analysis
+- **Next.js 16** - Web dashboard with App Router
+- **React 19** - Interactive UI with Framer Motion animations
+- **Tailwind CSS 4** - Styling
+- **Recharts** - Score visualizations
+- **Vitest** - 81 unit tests across 15 test files
+
+## How It Works
+
+1. **Scrape** - Playwright loads the URL in headless Chromium, capturing every network response, head scripts, resource hints, and Core Web Vitals via the Performance API
+2. **Analyze** - A rule engine runs 6 independent rules (heavy scripts, duplicate libraries, render-blocking, image optimization, third-party impact, resource hints)
+3. **Detect** - Network requests are matched against a fingerprint database of 48 known Shopify apps
+4. **Score** - Deductions by severity produce a 0-100 score across three categories (scripts, images, third-party)
+5. **Report** - Results are formatted for CLI output, rendered in the web dashboard, or exported as PDF
+
+See [docs/architecture.md](docs/architecture.md) for a deeper look at the system design.
 
 ## Project Structure
 
@@ -90,47 +114,58 @@ src/
   scoring/       Performance score calculation and grading
   types/         TypeScript interfaces
   utils/         Error types and shared helpers
+web/
+  app/           Next.js pages and API routes
+  components/    React components (WaterfallChart, AIInsights, etc.)
 data/
-  appFingerprints.json    Known Shopify app signatures
+  appFingerprints.json    48 known Shopify app signatures
 tests/
 docs/
   architecture.md
 ```
-
-## How It Works
-
-The tool uses Playwright to load the target URL in a headless Chromium browser. While the page loads, it captures every network response and collects script tags from the document `<head>`. That raw data flows through a rule engine where each rule independently evaluates the page and returns any issues it finds. Separately, network requests are matched against a fingerprint database to identify installed Shopify apps. Finally, a scoring system tallies deductions by severity to produce a 0-100 performance score.
-
-See [docs/architecture.md](docs/architecture.md) for a deeper look at the system design.
 
 ## Development
 
 ```bash
 # Install dependencies
 npm install
+cd web && npm install
 
-# Build
+# Build core (CLI + library)
+npm run build:core
+
+# Build everything (core + web)
 npm run build
 
 # Run tests
 npm test
 
-# Lint
-npm run lint
+# Dev server (web UI)
+npm run dev
 
-# Format
+# Lint & format
+npm run lint
 npm run format
 ```
 
 ## Adding a New Analysis Rule
 
-1. Create a file in `src/analyzer/rules/` that implements the `AnalysisRule` interface
+1. Create a file in `src/analyzer/rules/` implementing the `AnalysisRule` interface
 2. Register it in `src/analyzer/ruleRegistry.ts`
-3. Add tests in `tests/analyzer/rules/`
+3. Map the rule ID to a scoring category in `src/scoring/scoreCalculator.ts`
+4. Add tests in `tests/analyzer/rules/`
 
 ## Adding a New App Fingerprint
 
-Edit `data/appFingerprints.json` and add an entry with the app name, vendor, and known domains.
+Edit `data/appFingerprints.json` and add an entry:
+
+```json
+{
+  "appName": "App Name",
+  "vendor": "Vendor",
+  "domains": ["cdn.example.com", "api.example.com"]
+}
+```
 
 ## License
 

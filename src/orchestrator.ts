@@ -33,6 +33,7 @@ export interface AnalyzeOutput {
   score: ScoreBreakdown;
   waterfall: WaterfallEntry[];
   pages?: ScannedPage[];
+  missingPageTypes?: PageType[];
 }
 
 function toWaterfall(requests: NetworkRequest[]): WaterfallEntry[] {
@@ -70,6 +71,17 @@ function analyzePage(url: string, pageData: PageLoadResult): { result: AnalysisR
     score,
     apps,
   };
+}
+
+/** Scan a single URL and return it as a ScannedPage (for adding pages after initial scan). */
+export async function analyzeSinglePage(
+  url: string,
+  pageType: PageType,
+  options: AnalyzeOptions = {},
+): Promise<ScannedPage> {
+  const pageData = await scrapePage(url, { timeout: options.timeout });
+  const { result, score } = analyzePage(url, pageData);
+  return { pageType, result, score };
 }
 
 export async function analyze(
@@ -115,6 +127,9 @@ export async function analyzeMultiPage(
   if (productUrl) candidates.push({ pageType: 'product', url: productUrl });
   if (resolvedCollectionUrl) candidates.push({ pageType: 'collection', url: resolvedCollectionUrl });
 
+  const missingPageTypes: PageType[] = [];
+  if (!productUrl) missingPageTypes.push('product');
+
   for (const { pageType, url: pageUrl } of candidates) {
     try {
       const pageData = await scrapePage(pageUrl, { timeout });
@@ -137,5 +152,6 @@ export async function analyzeMultiPage(
     score: home.score,
     waterfall: toWaterfall(homeData.requests),
     pages,
+    missingPageTypes: missingPageTypes.length > 0 ? missingPageTypes : undefined,
   };
 }

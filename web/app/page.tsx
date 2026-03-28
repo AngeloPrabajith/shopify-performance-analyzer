@@ -39,14 +39,14 @@ const FEATURES = [
     icon: BarChart3,
     title: "Performance Score",
     description:
-      "Grades your store across scripts, images, and third-party impact — with a single actionable score.",
+      "Grades your store across scripts, images, and third-party impact, distilled into a single actionable score.",
     color: "#22C55E",
   },
   {
     icon: Sparkles,
     title: "AI Recommendations",
     description:
-      "Claude AI reads your results and generates specific, copy-paste-ready fixes for every issue.",
+      "AI reads your results and generates specific, copy-paste-ready fixes for every issue.",
     color: "#06B6D4",
   },
 ];
@@ -133,17 +133,12 @@ export default function HomePage() {
 
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #22C55E, #16A34A)" }}
-          >
-            <Zap size={16} className="text-white" />
-          </div>
+        <a href="/" className="flex items-center gap-2">
+          <img src="/logo.svg" alt="Loadly" className="w-9 h-9" />
           <span className="font-semibold text-slate-100 text-sm">
-            Shopify Analyzer
+            Loadly
           </span>
-        </div>
+        </a>
         <div className="flex items-center gap-3">
           <a
             href="https://github.com/angeloprabajith/shopify-performance-analyzer"
@@ -182,7 +177,7 @@ export default function HomePage() {
                 animation: "pulse-green 2s ease-in-out infinite",
               }}
             />
-            Powered by Playwright + Claude AI
+            Powered by Playwright + AI
           </div>
 
           {/* Headline */}
@@ -209,7 +204,7 @@ export default function HomePage() {
             style={{ color: "#94A3B8" }}
           >
             Detect render-blocking scripts, duplicate libraries, oversized images,
-            and every installed app — then get AI-generated fixes to ship immediately.
+            and every installed app, then get AI-generated fixes to ship immediately.
           </p>
 
           {/* URL Input */}
