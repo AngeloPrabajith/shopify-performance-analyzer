@@ -141,25 +141,35 @@ export function AIInsights({ analyzeOutput }: AIInsightsProps) {
   const [data, setData] = useState<AIInsightsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Use a ref to prevent re-fetching when the parent re-renders with the same data
   const fetchedRef = useRef(false);
 
   useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-
+    // In React Strict Mode, the first effect run is cleaned up immediately.
+    // Reset the ref on cleanup so the second run can actually fetch.
     let cancelled = false;
+
+    // Skip if we already have data (prevents re-fetching on parent re-renders)
+    if (fetchedRef.current) return;
 
     async function fetchInsights() {
       setLoading(true);
       setError(null);
 
       try {
+        // Send only what the AI endpoint needs (exclude waterfall/pages to reduce payload)
+        const { waterfall: _w, pages: _p, ...payload } = analyzeOutput;
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
         const res = await fetch("/api/ai-insights", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(analyzeOutput),
+          body: JSON.stringify(payload),
+          signal: controller.signal,
         });
+
+        clearTimeout(timeout);
 
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -167,10 +177,16 @@ export function AIInsights({ analyzeOutput }: AIInsightsProps) {
         }
 
         const json = await res.json();
-        if (!cancelled) setData(json);
+        if (!cancelled) {
+          fetchedRef.current = true;
+          setData(json);
+        }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "AI request failed");
+          const msg = err instanceof Error
+            ? err.name === "AbortError" ? "AI request timed out" : err.message
+            : "AI request failed";
+          setError(msg);
         }
       } finally {
         if (!cancelled) setLoading(false);

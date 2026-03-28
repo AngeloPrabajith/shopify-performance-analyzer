@@ -9,7 +9,9 @@
       "Bash(npx eslint:*)",
       "Bash(ls /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/eslint.config.*)",
       "Bash(ls -la /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/eslint*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(grep -n \"console.log\\\\|console.error\\\\|console.warn\" /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/web/app/api/**/*.ts)",
+      "Bash(grep -r console. /Users/angeloprabajith/Home/GitHub/shopify-performance-analyzer/web --include=*.tsx --include=*.ts)"
     ]
   }
 }

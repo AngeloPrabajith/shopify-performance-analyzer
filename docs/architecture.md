@@ -61,6 +61,7 @@ Key design decisions:
 | Render Blocking | `render-blocking` | Scripts in `<head>` without async/defer |
 | Image Optimization | `image-optimization` | Large images, legacy formats |
 | Third-Party Impact | `third-party-impact` | External script weight |
+| Resource Hints | `resource-hints` | Missing preconnect/preload for third-party domains |
 
 ### Detectors (`src/detectors/`)
 
