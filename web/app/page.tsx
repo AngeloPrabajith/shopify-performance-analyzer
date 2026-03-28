@@ -52,8 +52,8 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "5+", label: "Analysis Rules" },
-  { value: "20+", label: "App Fingerprints" },
+  { value: "6", label: "Analysis Rules" },
+  { value: "48", label: "App Fingerprints" },
   { value: "<30s", label: "Avg. Scan Time" },
   { value: "Free", label: "Always" },
 ];

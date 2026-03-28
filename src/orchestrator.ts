@@ -1,7 +1,7 @@
 import type { AnalysisResult } from './types/analysis.js';
 import type { DetectedApp } from './types/detection.js';
 import type { ScoreBreakdown } from './types/scoring.js';
-import type { PageLoadResult } from './types/index.js';
+import type { PageLoadResult, NetworkRequest } from './types/index.js';
 import { scrapePage } from './scraper/index.js';
 import { runRules, getDefaultRules } from './analyzer/index.js';
 import { detectApps, loadFingerprints } from './detectors/index.js';
@@ -19,11 +19,30 @@ export interface ScannedPage {
   score: ScoreBreakdown;
 }
 
+export interface WaterfallEntry {
+  url: string;
+  resourceType: string;
+  size: number;
+  duration: number;
+  startTime: number;
+}
+
 export interface AnalyzeOutput {
   result: AnalysisResult;
   apps: DetectedApp[];
   score: ScoreBreakdown;
+  waterfall: WaterfallEntry[];
   pages?: ScannedPage[];
+}
+
+function toWaterfall(requests: NetworkRequest[]): WaterfallEntry[] {
+  return requests.map((r) => ({
+    url: r.url,
+    resourceType: r.resourceType,
+    size: r.size,
+    duration: r.duration,
+    startTime: r.startTime,
+  }));
 }
 
 function analyzePage(url: string, pageData: PageLoadResult): { result: AnalysisResult; score: ScoreBreakdown; apps: DetectedApp[] } {
@@ -42,8 +61,10 @@ function analyzePage(url: string, pageData: PageLoadResult): { result: AnalysisR
         loadTime: pageData.loadTime,
         totalRequests: pageData.requests.length,
         totalTransferSize,
+        ttfb: pageData.ttfb,
         fcp: pageData.fcp,
         lcp: pageData.lcp,
+        cls: pageData.cls,
       },
     },
     score,
@@ -57,7 +78,7 @@ export async function analyze(
 ): Promise<AnalyzeOutput> {
   const pageData = await scrapePage(url, { timeout: options.timeout });
   const { result, score, apps } = analyzePage(url, pageData);
-  return { result, apps, score };
+  return { result, apps, score, waterfall: toWaterfall(pageData.requests) };
 }
 
 export async function analyzeMultiPage(
@@ -114,6 +135,7 @@ export async function analyzeMultiPage(
     result: home.result,
     apps: combinedApps,
     score: home.score,
+    waterfall: toWaterfall(homeData.requests),
     pages,
   };
 }

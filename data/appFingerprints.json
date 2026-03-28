@@ -5,9 +5,39 @@
     "domains": ["static.afterpay.com", "js.afterpay.com"]
   },
   {
+    "appName": "Attentive",
+    "vendor": "Attentive",
+    "domains": ["cdn.attn.tv", "events.attentivemobile.com"]
+  },
+  {
+    "appName": "Back in Stock",
+    "vendor": "Back in Stock",
+    "domains": ["app.backinstock.org"]
+  },
+  {
     "appName": "Bold Commerce",
     "vendor": "Bold",
     "domains": ["bold.ly", "boldcommerce.com", "boldapps.net"]
+  },
+  {
+    "appName": "Cart Drawer",
+    "vendor": "Starter Apps",
+    "domains": ["cdn.cartdrawer.com"]
+  },
+  {
+    "appName": "Criteo",
+    "vendor": "Criteo",
+    "domains": ["static.criteo.net", "dynamic.criteo.com"]
+  },
+  {
+    "appName": "Drift",
+    "vendor": "Drift",
+    "domains": ["js.driftt.com", "event.drift.com"]
+  },
+  {
+    "appName": "Dynamic Yield",
+    "vendor": "Dynamic Yield",
+    "domains": ["cdn.dynamicyield.com", "st.dynamicyield.com"]
   },
   {
     "appName": "Facebook Pixel",
@@ -15,9 +45,24 @@
     "domains": ["connect.facebook.net"]
   },
   {
+    "appName": "Foursixty",
+    "vendor": "Foursixty",
+    "domains": ["foursixty.com"]
+  },
+  {
+    "appName": "GemPages",
+    "vendor": "GemPages",
+    "domains": ["cdn.gempages.io"]
+  },
+  {
     "appName": "Google Analytics",
     "vendor": "Google",
     "domains": ["www.google-analytics.com", "www.googletagmanager.com", "analytics.google.com"]
+  },
+  {
+    "appName": "Google Ads",
+    "vendor": "Google",
+    "domains": ["googleads.g.doubleclick.net", "pagead2.googlesyndication.com"]
   },
   {
     "appName": "Gorgias",
@@ -30,9 +75,19 @@
     "domains": ["static.hotjar.com", "script.hotjar.com"]
   },
   {
+    "appName": "Intercom",
+    "vendor": "Intercom",
+    "domains": ["widget.intercom.io", "js.intercomcdn.com"]
+  },
+  {
     "appName": "Judge.me",
     "vendor": "Judge.me",
     "domains": ["cache.judge.me", "judgeme.imgix.net"]
+  },
+  {
+    "appName": "Justuno",
+    "vendor": "Justuno",
+    "domains": ["cdn.justuno.com"]
   },
   {
     "appName": "Klaviyo",
@@ -55,14 +110,44 @@
     "domains": ["d10lpsik1i8c69.cloudfront.net", "luckyorange.com"]
   },
   {
+    "appName": "Mailchimp",
+    "vendor": "Mailchimp",
+    "domains": ["chimpstatic.com", "list-manage.com"]
+  },
+  {
+    "appName": "Microsoft Clarity",
+    "vendor": "Microsoft",
+    "domains": ["www.clarity.ms"]
+  },
+  {
+    "appName": "Nosto",
+    "vendor": "Nosto",
+    "domains": ["connect.nosto.com", "cdn.nosto.com"]
+  },
+  {
+    "appName": "Okendo",
+    "vendor": "Okendo",
+    "domains": ["d3hw6dc1ow8pp2.cloudfront.net", "reviews.okendo.io"]
+  },
+  {
     "appName": "Omnisend",
     "vendor": "Omnisend",
     "domains": ["omnisrc.com", "omnisnippet1.com"]
   },
   {
+    "appName": "PageFly",
+    "vendor": "PageFly",
+    "domains": ["cdn.pagefly.io"]
+  },
+  {
     "appName": "Pinterest Tag",
     "vendor": "Pinterest",
     "domains": ["s.pinimg.com", "ct.pinterest.com"]
+  },
+  {
+    "appName": "Postscript",
+    "vendor": "Postscript",
+    "domains": ["sdk.postscript.io", "api.postscript.io"]
   },
   {
     "appName": "Privy",
@@ -75,9 +160,34 @@
     "domains": ["rechargecdn.com", "rechargepayments.com"]
   },
   {
+    "appName": "Rebuy",
+    "vendor": "Rebuy",
+    "domains": ["rebuyengine.com"]
+  },
+  {
+    "appName": "Sentry",
+    "vendor": "Sentry",
+    "domains": ["browser.sentry-cdn.com", "js.sentry-cdn.com"]
+  },
+  {
+    "appName": "Shop Pay",
+    "vendor": "Shopify",
+    "domains": ["cdn.shopify.com/shopifycloud/shop-js"]
+  },
+  {
+    "appName": "Shogun",
+    "vendor": "Shogun",
+    "domains": ["lib.getshogun.com"]
+  },
+  {
     "appName": "Smile.io",
     "vendor": "Smile.io",
     "domains": ["js.smile.io"]
+  },
+  {
+    "appName": "Snap Pixel",
+    "vendor": "Snapchat",
+    "domains": ["sc-static.net"]
   },
   {
     "appName": "Stamped.io",
@@ -85,9 +195,9 @@
     "domains": ["stamped.io", "cdn-stamped-io.azureedge.net"]
   },
   {
-    "appName": "TikTok Pixel",
-    "vendor": "TikTok",
-    "domains": ["analytics.tiktok.com"]
+    "appName": "Tapcart",
+    "vendor": "Tapcart",
+    "domains": ["cdn.tapcart.com"]
   },
   {
     "appName": "Tidio",
@@ -95,8 +205,38 @@
     "domains": ["code.tidio.co", "widget-v4.tidiochat.com"]
   },
   {
+    "appName": "TikTok Pixel",
+    "vendor": "TikTok",
+    "domains": ["analytics.tiktok.com"]
+  },
+  {
+    "appName": "Triple Whale",
+    "vendor": "Triple Whale",
+    "domains": ["api.triplewhale.com", "triplewhale.com"]
+  },
+  {
+    "appName": "Trustpilot",
+    "vendor": "Trustpilot",
+    "domains": ["widget.trustpilot.com", "invitations-static.trustpilot.com"]
+  },
+  {
+    "appName": "Vitals",
+    "vendor": "Vitals",
+    "domains": ["cdn.vitals.co"]
+  },
+  {
+    "appName": "Wishlist Plus",
+    "vendor": "Swym",
+    "domains": ["swymrelay.azurewebsites.net", "swym-it-v2-assets-public.s3.amazonaws.com"]
+  },
+  {
     "appName": "Yotpo",
     "vendor": "Yotpo",
     "domains": ["staticw2.yotpo.com", "api.yotpo.com"]
+  },
+  {
+    "appName": "Zendesk",
+    "vendor": "Zendesk",
+    "domains": ["static.zdassets.com", "ekr.zdassets.com"]
   }
 ]

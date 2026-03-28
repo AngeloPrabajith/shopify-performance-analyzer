@@ -156,6 +156,17 @@ export function formatReport(
   lines.push(
     `  ${chalk.gray(`${metadata.totalRequests} requests, ${formatKb(metadata.totalTransferSize)} transferred, loaded in ${(metadata.loadTime / 1000).toFixed(2)}s`)}`,
   );
+
+  // Core Web Vitals
+  const vitals: string[] = [];
+  if (metadata.ttfb != null) vitals.push(`TTFB: ${metadata.ttfb}ms`);
+  if (metadata.fcp != null) vitals.push(`FCP: ${metadata.fcp}ms`);
+  if (metadata.lcp != null) vitals.push(`LCP: ${metadata.lcp}ms`);
+  if (metadata.cls != null) vitals.push(`CLS: ${metadata.cls}`);
+  if (vitals.length > 0) {
+    lines.push(`  ${chalk.gray(vitals.join('  |  '))}`);
+  }
+
   lines.push(divider());
 
   lines.push(formatScore(score));

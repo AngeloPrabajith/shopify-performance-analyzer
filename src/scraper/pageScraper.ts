@@ -1,5 +1,5 @@
 import { chromium, type Response, errors as playwrightErrors } from 'playwright';
-import type { PageLoadResult, HeadScript } from '../types/index.js';
+import type { PageLoadResult, HeadScript, ResourceHint } from '../types/index.js';
 import { mapResponseToRequest } from './requestMapper.js';
 import { ScraperError } from '../utils/errors.js';
 
@@ -81,13 +81,27 @@ async function scrapeOnce(
         | PerformanceEntry
         | undefined;
 
+      // CLS: sum layout-shift entries that didn't have recent input
+      const clsEntries = performance.getEntriesByType('layout-shift') as
+        (PerformanceEntry & { hadRecentInput: boolean; value: number })[];
+      const clsValue = clsEntries
+        .filter((e) => !e.hadRecentInput)
+        .reduce((sum, e) => sum + e.value, 0);
+
+      // TTFB: time from navigation start to first byte of response
+      const ttfb = perf.responseStart > 0
+        ? Math.round(perf.responseStart - perf.startTime)
+        : null;
+
       return {
         loadTime: Math.round(perf.loadEventEnd - perf.startTime),
         domContentLoaded: Math.round(
           perf.domContentLoadedEventEnd - perf.startTime,
         ),
+        ttfb,
         fcp: fcpEntry ? Math.round(fcpEntry.startTime) : null,
         lcp: lastLcp ? Math.round(lastLcp.startTime) : null,
+        cls: clsEntries.length > 0 ? Math.round(clsValue * 1000) / 1000 : null,
       };
     });
 
@@ -98,6 +112,17 @@ async function scrapeOnce(
         src: el.getAttribute('src') || '',
         async: el.hasAttribute('async'),
         defer: el.hasAttribute('defer'),
+      }));
+    });
+
+    // Collect resource hints (preload, prefetch, preconnect, dns-prefetch)
+    const resourceHints: ResourceHint[] = await page.evaluate(() => {
+      const hints = document.querySelectorAll(
+        'link[rel="preload"], link[rel="prefetch"], link[rel="preconnect"], link[rel="dns-prefetch"]',
+      );
+      return Array.from(hints).map((el) => ({
+        rel: el.getAttribute('rel') || '',
+        href: el.getAttribute('href') || '',
       }));
     });
 
@@ -129,10 +154,13 @@ async function scrapeOnce(
       pageUrl: url,
       requests: requests.filter((r) => r !== null),
       headScripts,
+      resourceHints,
       loadTime: timing.loadTime,
       domContentLoaded: timing.domContentLoaded,
+      ttfb: timing.ttfb,
       fcp: timing.fcp,
       lcp: timing.lcp,
+      cls: timing.cls,
       linkedPages,
     };
   } finally {

@@ -4,6 +4,7 @@ import { duplicateLibrariesRule } from './rules/duplicateLibraries.js';
 import { renderBlockingRule } from './rules/renderBlocking.js';
 import { imageOptimizationRule } from './rules/imageOptimization.js';
 import { thirdPartyImpactRule } from './rules/thirdPartyImpact.js';
+import { resourceHintsRule } from './rules/resourceHints.js';
 
 export function getDefaultRules(): AnalysisRule[] {
   return [
@@ -12,5 +13,6 @@ export function getDefaultRules(): AnalysisRule[] {
     renderBlockingRule,
     imageOptimizationRule,
     thirdPartyImpactRule,
+    resourceHintsRule,
   ];
 }

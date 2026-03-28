@@ -13,6 +13,7 @@ import {
   Home,
   ShoppingBag,
   Grid3X3,
+  Download,
 } from "lucide-react";
 import type { AnalyzeOutput, PageType } from "@analyzer";
 import { AnalyzingScreen } from "@/components/AnalyzingScreen";
@@ -22,6 +23,7 @@ import { CategoryChart } from "@/components/CategoryChart";
 import { IssueCard } from "@/components/IssueCard";
 import { AppTable } from "@/components/AppTable";
 import { AIInsights } from "@/components/AIInsights";
+import { WaterfallChart } from "@/components/WaterfallChart";
 
 type SeverityFilter = "all" | "critical" | "warning" | "info";
 
@@ -90,6 +92,32 @@ function ResultsContent() {
   useEffect(() => {
     runAnalysis();
   }, [runAnalysis]);
+
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPdf = useCallback(async () => {
+    if (!output || exporting) return;
+    setExporting(true);
+    try {
+      const res = await fetch("/api/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(output),
+      });
+      if (!res.ok) throw new Error("PDF export failed");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `shopify-report-${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Silently fail - PDF export is optional
+    } finally {
+      setExporting(false);
+    }
+  }, [output, exporting]);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -222,16 +250,29 @@ function ResultsContent() {
           <span className="text-sm font-medium text-slate-300 hidden sm:block">Shopify Analyzer</span>
         </div>
 
-        <button
-          onClick={runAnalysis}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#64748B" }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#94A3B8")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#64748B")}
-        >
-          <RefreshCw size={13} />
-          Re-scan
-        </button>
+        <div className="flex items-center gap-2">
+          {output && (
+            <button
+              onClick={handleExportPdf}
+              disabled={exporting}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+              style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#22C55E", opacity: exporting ? 0.5 : 1 }}
+            >
+              <Download size={13} />
+              {exporting ? "Exporting..." : "PDF"}
+            </button>
+          )}
+          <button
+            onClick={runAnalysis}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#64748B" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#94A3B8")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#64748B")}
+          >
+            <RefreshCw size={13} />
+            Re-scan
+          </button>
+        </div>
       </nav>
 
       {/* Content */}
@@ -243,8 +284,10 @@ function ResultsContent() {
           loadTime={activeResult.metadata.loadTime}
           totalRequests={activeResult.metadata.totalRequests}
           totalTransferSize={activeResult.metadata.totalTransferSize}
+          ttfb={activeResult.metadata.ttfb}
           fcp={activeResult.metadata.fcp}
           lcp={activeResult.metadata.lcp}
+          cls={activeResult.metadata.cls}
         />
 
         {/* AI Insights - always at top, uses homepage data */}
@@ -394,6 +437,17 @@ function ResultsContent() {
             </>
           )}
         </motion.div>
+
+        {/* Network waterfall */}
+        {output.waterfall && output.waterfall.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.35 }}
+          >
+            <WaterfallChart requests={output.waterfall} />
+          </motion.div>
+        )}
 
         {/* Detected apps - always shows combined list */}
         <motion.div

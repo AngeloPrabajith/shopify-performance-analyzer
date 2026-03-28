@@ -23,6 +23,7 @@ const CATEGORY_MAP: Record<string, string> = {
   'render-blocking': 'scripts',
   'image-optimization': 'images',
   'third-party-impact': 'third-party',
+  'resource-hints': 'third-party',
 };
 
 export function calculateScore(

@@ -24,8 +24,7 @@ export async function POST(req: NextRequest) {
   const criticalIssues = result.issues.filter((i) => i.severity === "critical");
   const warnings = result.issues.filter((i) => i.severity === "warning");
 
-  const fcp = result.metadata.fcp;
-  const lcp = result.metadata.lcp;
+  const { ttfb, fcp, lcp, cls } = result.metadata;
 
   const prompt = `You are a Shopify performance expert. Analyze this storefront performance report and provide concise, actionable recommendations.
 
@@ -34,10 +33,12 @@ Store: ${result.metadata.url}
 Performance Score: ${score.overall}/100
 Categories: ${JSON.stringify(score.categories)}
 
-Timing Metrics:
-- Load time: ${(result.metadata.loadTime / 1000).toFixed(2)}s
+Core Web Vitals:
+- TTFB: ${ttfb != null ? `${ttfb}ms` : "unavailable"}
 - FCP: ${fcp != null ? `${fcp}ms` : "unavailable"}
 - LCP: ${lcp != null ? `${lcp}ms` : "unavailable"}
+- CLS: ${cls != null ? cls : "unavailable"}
+- Load time: ${(result.metadata.loadTime / 1000).toFixed(2)}s
 - Total requests: ${result.metadata.totalRequests}
 - Transfer size: ${(result.metadata.totalTransferSize / 1024).toFixed(1)} KB
 

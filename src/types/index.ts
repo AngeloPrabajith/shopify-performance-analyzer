@@ -1,6 +1,7 @@
 export type {
   NetworkRequest,
   HeadScript,
+  ResourceHint,
   PageLoadResult,
 } from './network.js';
 

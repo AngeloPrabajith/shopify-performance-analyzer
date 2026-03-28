@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Activity, HardDrive, Globe, Eye, Zap } from "lucide-react";
+import { Clock, Activity, HardDrive, Globe, Eye, Zap, Timer, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface MetadataBarProps {
@@ -8,8 +8,10 @@ interface MetadataBarProps {
   loadTime: number;
   totalRequests: number;
   totalTransferSize: number;
+  ttfb?: number | null;
   fcp?: number | null;
   lcp?: number | null;
+  cls?: number | null;
 }
 
 function formatBytes(bytes: number) {
@@ -29,9 +31,9 @@ function loadTimeColor(ms: number) {
   return "#EF4444";
 }
 
-function lcpColor(ms: number) {
-  if (ms < 2500) return "#22C55E";
-  if (ms < 4000) return "#F59E0B";
+function ttfbColor(ms: number) {
+  if (ms < 800) return "#22C55E";
+  if (ms < 1800) return "#F59E0B";
   return "#EF4444";
 }
 
@@ -41,13 +43,27 @@ function fcpColor(ms: number) {
   return "#EF4444";
 }
 
+function lcpColor(ms: number) {
+  if (ms < 2500) return "#22C55E";
+  if (ms < 4000) return "#F59E0B";
+  return "#EF4444";
+}
+
+function clsColor(value: number) {
+  if (value < 0.1) return "#22C55E";
+  if (value < 0.25) return "#F59E0B";
+  return "#EF4444";
+}
+
 export function MetadataBar({
   url,
   loadTime,
   totalRequests,
   totalTransferSize,
+  ttfb,
   fcp,
   lcp,
+  cls,
 }: MetadataBarProps) {
   const stats = [
     {
@@ -56,6 +72,17 @@ export function MetadataBar({
       value: formatMs(loadTime),
       color: loadTimeColor(loadTime),
     },
+    ...(ttfb != null
+      ? [
+          {
+            icon: Timer,
+            label: "TTFB",
+            value: formatMs(ttfb),
+            color: ttfbColor(ttfb),
+            tooltip: "Time to First Byte",
+          },
+        ]
+      : []),
     ...(fcp != null
       ? [
           {
@@ -75,6 +102,17 @@ export function MetadataBar({
             value: formatMs(lcp),
             color: lcpColor(lcp),
             tooltip: "Largest Contentful Paint",
+          },
+        ]
+      : []),
+    ...(cls != null
+      ? [
+          {
+            icon: LayoutDashboard,
+            label: "CLS",
+            value: cls.toFixed(3),
+            color: clsColor(cls),
+            tooltip: "Cumulative Layout Shift",
           },
         ]
       : []),

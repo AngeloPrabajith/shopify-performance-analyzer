@@ -34,6 +34,7 @@ export async function mapResponseToRequest(
     resourceType: request.resourceType(),
     size,
     duration: Math.max(0, duration),
+    startTime: timing.startTime > 0 ? timing.startTime : 0,
     blocked: false,
     fromCache: response.fromServiceWorker(),
     headers: response.headers(),
