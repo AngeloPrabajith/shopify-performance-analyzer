@@ -1,24 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyze, analyzeMultiPage } from "@analyzer";
 
-export const maxDuration = 150; // Full scan needs up to 3 pages × 45s + buffer
+export const maxDuration = 150;
+
+const SCRAPER_URL = process.env.SCRAPER_API_URL || "";
+const API_SECRET = process.env.SCRAPER_API_SECRET || "";
 
 function isPrivateHostname(hostname: string): boolean {
-  // Block localhost variants
   if (hostname === "localhost" || hostname === "[::1]") return true;
-
-  // Block private IPv4 ranges
   const parts = hostname.split(".");
   if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p))) {
     const [a, b] = parts.map(Number);
-    if (a === 127) return true;                          // 127.0.0.0/8
-    if (a === 10) return true;                           // 10.0.0.0/8
-    if (a === 172 && b >= 16 && b <= 31) return true;    // 172.16.0.0/12
-    if (a === 192 && b === 168) return true;             // 192.168.0.0/16
-    if (a === 169 && b === 254) return true;             // 169.254.0.0/16
-    if (a === 0) return true;                            // 0.0.0.0/8
+    if (a === 127 || a === 10 || a === 0) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true;
   }
-
   return false;
 }
 
@@ -53,7 +49,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Private/internal URLs are not allowed" }, { status: 400 });
   }
 
+  // If scraper service is configured, proxy to it; otherwise run locally (dev mode)
+  if (SCRAPER_URL) {
+    try {
+      const res = await fetch(`${SCRAPER_URL}/analyze`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(API_SECRET ? { Authorization: `Bearer ${API_SECRET}` } : {}),
+        },
+        body: JSON.stringify({ url, scanScope }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        return NextResponse.json(
+          { error: body.error || `Scraper returned ${res.status}` },
+          { status: res.status },
+        );
+      }
+
+      const data = await res.json();
+      return NextResponse.json(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Scraper service unavailable";
+      console.error("[analyze]", message);
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
+  }
+
+  // Local fallback (dev mode)
   try {
+    const { analyze, analyzeMultiPage } = await import("@analyzer");
     const output =
       scanScope === "full"
         ? await analyzeMultiPage(url, { timeout: 45_000 })

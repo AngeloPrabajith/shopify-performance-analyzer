@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeSinglePage } from "@analyzer";
 import type { PageType } from "@analyzer";
 
 export const maxDuration = 60;
+
+const SCRAPER_URL = process.env.SCRAPER_API_URL || "";
+const API_SECRET = process.env.SCRAPER_API_SECRET || "";
+
+const VALID_PAGE_TYPES: PageType[] = ["homepage", "product", "collection"];
 
 function isPrivateHostname(hostname: string): boolean {
   if (hostname === "localhost" || hostname === "[::1]") return true;
@@ -16,8 +20,6 @@ function isPrivateHostname(hostname: string): boolean {
   }
   return false;
 }
-
-const VALID_PAGE_TYPES: PageType[] = ["homepage", "product", "collection"];
 
 export async function POST(req: NextRequest) {
   let url: string;
@@ -54,7 +56,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Private/internal URLs are not allowed" }, { status: 400 });
   }
 
+  if (SCRAPER_URL) {
+    try {
+      const res = await fetch(`${SCRAPER_URL}/analyze-page`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(API_SECRET ? { Authorization: `Bearer ${API_SECRET}` } : {}),
+        },
+        body: JSON.stringify({ url, pageType }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        return NextResponse.json(
+          { error: body.error || `Scraper returned ${res.status}` },
+          { status: res.status },
+        );
+      }
+
+      return NextResponse.json(await res.json());
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Scraper service unavailable";
+      console.error("[analyze-page]", message);
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
+  }
+
   try {
+    const { analyzeSinglePage } = await import("@analyzer");
     const page = await analyzeSinglePage(url, pageType, { timeout: 45_000 });
     return NextResponse.json(page);
   } catch (err) {

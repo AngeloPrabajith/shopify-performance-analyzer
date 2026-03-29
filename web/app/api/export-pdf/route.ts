@@ -151,6 +151,9 @@ function buildReportHtml(output: AnalyzeOutput): string {
 </html>`;
 }
 
+const SCRAPER_URL = process.env.SCRAPER_API_URL || "";
+const API_SECRET = process.env.SCRAPER_API_SECRET || "";
+
 export async function POST(req: NextRequest) {
   let output: AnalyzeOutput;
   try {
@@ -163,12 +166,46 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing analysis data" }, { status: 400 });
   }
 
+  const html = buildReportHtml(output);
+
+  // If scraper service is configured, proxy PDF rendering to it
+  if (SCRAPER_URL) {
+    try {
+      const res = await fetch(`${SCRAPER_URL}/render-pdf`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(API_SECRET ? { Authorization: `Bearer ${API_SECRET}` } : {}),
+        },
+        body: JSON.stringify({ html }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Scraper returned ${res.status}`);
+      }
+
+      const pdf = await res.arrayBuffer();
+      return new NextResponse(new Uint8Array(pdf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="loadly-report-${Date.now()}.pdf"`,
+        },
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "PDF generation failed";
+      console.error("[export-pdf]", message);
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+  }
+
+  // Local fallback (dev mode)
   try {
     const { chromium } = await import("playwright");
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
 
-    await page.setContent(buildReportHtml(output), { waitUntil: "load" });
+    await page.setContent(html, { waitUntil: "load" });
 
     const pdf = await page.pdf({
       format: "A4",
@@ -181,7 +218,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="shopify-report-${Date.now()}.pdf"`,
+        "Content-Disposition": `attachment; filename="loadly-report-${Date.now()}.pdf"`,
       },
     });
   } catch (err) {
