@@ -25,9 +25,9 @@ export interface DetectedApp {
 export interface WaterfallEntry {
   url: string;
   resourceType: string;
-  transferSize: number;
-  startTime: number;
+  size: number;
   duration: number;
+  startTime: number;
 }
 
 export interface AnalysisResult {

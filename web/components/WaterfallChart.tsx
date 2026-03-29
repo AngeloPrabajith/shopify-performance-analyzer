@@ -3,17 +3,10 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
-interface WaterfallRequest {
-  url: string;
-  resourceType: string;
-  size: number;
-  duration: number;
-  startTime: number;
-}
+import type { WaterfallEntry } from "@/types/analyzer";
 
 interface WaterfallChartProps {
-  requests: WaterfallRequest[];
+  requests: WaterfallEntry[];
 }
 
 const TYPE_COLORS: Record<string, string> = {
