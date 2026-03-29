@@ -2,9 +2,9 @@ FROM mcr.microsoft.com/playwright:v1.52.0-noble
 
 WORKDIR /app
 
-# Copy root package files and install core dependencies
+# Copy root package files and install all dependencies (need typescript for build)
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy server package files
 COPY server/package.json server/
@@ -17,6 +17,9 @@ COPY tsconfig.json ./
 
 # Build TypeScript
 RUN npm run build:core
+
+# Remove dev dependencies after build
+RUN npm prune --omit=dev
 
 # Copy server entry point
 COPY server/index.js server/
