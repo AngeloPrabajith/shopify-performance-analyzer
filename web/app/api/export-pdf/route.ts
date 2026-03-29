@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { AnalyzeOutput } from "@analyzer";
+
+interface AnalyzeOutput {
+  result: {
+    metadata: { url: string; loadTime: number; totalRequests: number; totalTransferSize: number; ttfb?: number; fcp?: number; lcp?: number; cls?: number };
+    issues: Array<{ title: string; description: string; severity: string; savingsKb?: number }>;
+  };
+  apps: Array<{ appName: string; vendor: string; scriptCount: number; totalSize: number }>;
+  score: { overall: number; categories: Record<string, number> };
+}
 
 export const maxDuration = 30;
 
@@ -199,31 +207,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Local fallback (dev mode)
-  try {
-    const { chromium } = await import("playwright");
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
-
-    await page.setContent(html, { waitUntil: "load" });
-
-    const pdf = await page.pdf({
-      format: "A4",
-      margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
-      printBackground: true,
-    });
-
-    await browser.close();
-
-    return new NextResponse(new Uint8Array(pdf), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="loadly-report-${Date.now()}.pdf"`,
-      },
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "PDF generation failed";
-    console.error("[export-pdf]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: "Scraper service not configured. Set SCRAPER_API_URL." },
+    { status: 503 },
+  );
 }

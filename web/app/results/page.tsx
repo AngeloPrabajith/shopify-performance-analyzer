@@ -169,7 +169,7 @@ function ResultsContent() {
       a.click();
       URL.revokeObjectURL(blobUrl);
     } catch {
-      // Silently fail - PDF export is optional
+      alert("PDF export failed. The service may be temporarily unavailable.");
     } finally {
       setExporting(false);
     }

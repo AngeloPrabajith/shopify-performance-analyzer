@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { PageType } from "@analyzer";
 
 export const maxDuration = 60;
 
 const SCRAPER_URL = process.env.SCRAPER_API_URL || "";
 const API_SECRET = process.env.SCRAPER_API_SECRET || "";
 
+type PageType = "homepage" | "product" | "collection";
 const VALID_PAGE_TYPES: PageType[] = ["homepage", "product", "collection"];
 
 function isPrivateHostname(hostname: string): boolean {
@@ -83,13 +83,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  try {
-    const { analyzeSinglePage } = await import("@analyzer");
-    const page = await analyzeSinglePage(url, pageType, { timeout: 45_000 });
-    return NextResponse.json(page);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Page analysis failed";
-    console.error("[analyze-page]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: "Scraper service not configured. Set SCRAPER_API_URL." },
+    { status: 503 },
+  );
 }

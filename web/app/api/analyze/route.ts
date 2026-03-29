@@ -78,18 +78,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Local fallback (dev mode)
-  try {
-    const { analyze, analyzeMultiPage } = await import("@analyzer");
-    const output =
-      scanScope === "full"
-        ? await analyzeMultiPage(url, { timeout: 45_000 })
-        : await analyze(url, { timeout: 45_000 });
-
-    return NextResponse.json(output);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Analysis failed";
-    console.error("[analyze]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  // Local fallback (dev mode only - requires core build + Playwright)
+  return NextResponse.json(
+    { error: "Scraper service not configured. Set SCRAPER_API_URL." },
+    { status: 503 },
+  );
 }

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import type { AnalyzeOutput } from "@analyzer";
+
+interface AnalyzeOutput {
+  result: {
+    metadata: { url: string; loadTime: number; totalRequests: number; totalTransferSize: number; ttfb?: number; fcp?: number; lcp?: number; cls?: number };
+    issues: Array<{ title: string; description: string; severity: string; savingsKb?: number }>;
+  };
+  apps: Array<{ appName: string; vendor: string; scriptCount: number; totalSize: number }>;
+  score: { overall: number; categories: Record<string, number> };
+}
 
 export const maxDuration = 30;
 
