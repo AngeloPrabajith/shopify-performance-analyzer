@@ -66,15 +66,24 @@ function checkAuth(req) {
 const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") return cors(res);
 
+  const url = new URL(req.url || "/", `http://localhost:${PORT}`);
+  const path = url.pathname;
+
+  // Health check - allow GET, no auth required
+  if (path === "/health") {
+    return json(res, 200, {
+      status: "ok",
+      scansToday: dailyCount,
+      dailyLimit: DAILY_LIMIT,
+    });
+  }
+
   if (req.method !== "POST") return json(res, 405, { error: "POST only" });
   if (!checkAuth(req)) return json(res, 401, { error: "Unauthorized" });
   if (!checkRateLimit())
     return json(res, 429, {
       error: `Daily scan limit reached (${DAILY_LIMIT}). Resets in ${Math.ceil((86_400_000 - (Date.now() - lastReset)) / 3_600_000)}h.`,
     });
-
-  const url = new URL(req.url || "/", `http://localhost:${PORT}`);
-  const path = url.pathname;
 
   try {
     const body = await readBody(req);
@@ -114,14 +123,6 @@ const server = http.createServer(async (req, res) => {
         "Access-Control-Allow-Origin": "*",
       });
       return res.end(pdf);
-    }
-
-    if (path === "/health") {
-      return json(res, 200, {
-        status: "ok",
-        scansToday: dailyCount,
-        dailyLimit: DAILY_LIMIT,
-      });
     }
 
     return json(res, 404, { error: "Not found" });
