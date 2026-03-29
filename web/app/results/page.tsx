@@ -17,7 +17,7 @@ import {
   Loader2,
   X,
 } from "lucide-react";
-import type { AnalyzeOutput, PageType, ScannedPage } from "@analyzer";
+import type { AnalyzeOutput, PageType, ScannedPage } from "@/types/analyzer";
 import { AnalyzingScreen } from "@/components/AnalyzingScreen";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { MetadataBar } from "@/components/MetadataBar";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Package, ChevronDown, ChevronUp } from "lucide-react";
 import { motion } from "framer-motion";
-import type { DetectedApp } from "@analyzer";
+import type { DetectedApp } from "@/types/analyzer";
 
 // DetectedApp fields: appName, vendor, matchedDomain, scriptCount, totalSize
 

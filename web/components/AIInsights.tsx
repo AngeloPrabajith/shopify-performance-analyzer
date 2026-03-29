@@ -11,7 +11,7 @@ import {
   Loader2,
   Zap,
 } from "lucide-react";
-import type { AnalyzeOutput } from "@analyzer";
+import type { AnalyzeOutput } from "@/types/analyzer";
 
 interface AIInsightsData {
   summary: string;

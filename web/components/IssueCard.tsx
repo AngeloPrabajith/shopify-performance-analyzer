@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, AlertTriangle, Info, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { AnalysisIssue } from "@analyzer";
+import type { AnalysisIssue } from "@/types/analyzer";
 
 
 interface IssueCardProps {
