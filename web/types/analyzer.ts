@@ -36,10 +36,10 @@ export interface AnalysisResult {
     loadTime: number;
     totalRequests: number;
     totalTransferSize: number;
-    ttfb?: number;
-    fcp?: number;
-    lcp?: number;
-    cls?: number;
+    ttfb: number | null;
+    fcp: number | null;
+    lcp: number | null;
+    cls: number | null;
   };
   issues: AnalysisIssue[];
 }

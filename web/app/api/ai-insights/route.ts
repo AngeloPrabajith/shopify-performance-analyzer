@@ -4,8 +4,6 @@ import type { AnalyzeOutput } from "@/types/analyzer";
 
 export const maxDuration = 30;
 
-const client = new Anthropic();
-
 export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -14,6 +12,8 @@ export async function POST(req: NextRequest) {
       { status: 503 }
     );
   }
+
+  const client = new Anthropic({ apiKey });
 
   let output: AnalyzeOutput;
   try {

@@ -134,6 +134,22 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Loadly scraper running on :${PORT} (limit: ${DAILY_LIMIT} scans/day)`);
+// Verify Playwright can launch before accepting traffic
+async function verifyPlaywright() {
+  try {
+    const { chromium } = await import("playwright");
+    const browser = await chromium.launch({ headless: true });
+    await browser.close();
+    console.log("[startup] Playwright browser verified OK");
+  } catch (err) {
+    console.error("[startup] Playwright failed to launch:", err.message);
+    console.error("[startup] Docker image may need updating to match Playwright version");
+    process.exit(1);
+  }
+}
+
+verifyPlaywright().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Loadly scraper running on :${PORT} (limit: ${DAILY_LIMIT} scans/day)`);
+  });
 });

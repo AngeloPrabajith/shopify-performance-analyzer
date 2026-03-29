@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { AnalyzeOutput } from "@/types/analyzer";
+import type { AnalyzeOutput, ScoreBreakdown } from "@/types/analyzer";
 
 export const maxDuration = 30;
-
-interface ScoreBreakdown {
-  overall: number;
-  categories: Record<string, number>;
-}
 
 function gradeFor(score: number) {
   if (score >= 90) return { letter: "A", label: "Excellent", color: "#22C55E" };
