@@ -2,6 +2,8 @@
 
 import { Clock, Activity, HardDrive, Globe, Eye, Zap, Timer, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
+import { Tooltip } from "@/components/Tooltip";
+import glossary from "@/data/glossary";
 
 interface MetadataBarProps {
   url: string;
@@ -158,25 +160,36 @@ export function MetadataBar({
 
         {/* Stats */}
         <div className="flex items-center gap-5 sm:gap-7 flex-wrap flex-shrink-0">
-          {stats.map((stat) => (
-            <div key={stat.label} className="flex items-center gap-2" title={"tooltip" in stat ? stat.tooltip : undefined}>
-              <stat.icon size={14} style={{ color: stat.color }} />
-              <div className="flex flex-col">
-                <span
-                  className="font-mono font-semibold text-sm leading-none"
-                  style={{ color: stat.color }}
-                >
-                  {stat.value}
-                </span>
-                <span
-                  className="text-xs leading-none mt-0.5"
-                  style={{ color: "#475569" }}
-                >
-                  {stat.label}
-                </span>
+          {stats.map((stat) => {
+            const tip = glossary[stat.label];
+            const content = (
+              <div className="flex items-center gap-2">
+                <stat.icon size={14} style={{ color: stat.color }} />
+                <div className="flex flex-col">
+                  <span
+                    className="font-mono font-semibold text-sm leading-none"
+                    style={{ color: stat.color }}
+                  >
+                    {stat.value}
+                  </span>
+                  <span
+                    className="text-xs leading-none mt-0.5"
+                    style={{
+                      color: "#475569",
+                      borderBottom: tip ? "1px dashed rgba(71,85,105,0.5)" : undefined,
+                    }}
+                  >
+                    {stat.label}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+            return tip ? (
+              <Tooltip key={stat.label} text={tip}>{content}</Tooltip>
+            ) : (
+              <div key={stat.label}>{content}</div>
+            );
+          })}
         </div>
       </div>
     </motion.div>

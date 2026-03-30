@@ -5,6 +5,9 @@ import { renderBlockingRule } from './rules/renderBlocking.js';
 import { imageOptimizationRule } from './rules/imageOptimization.js';
 import { thirdPartyImpactRule } from './rules/thirdPartyImpact.js';
 import { resourceHintsRule } from './rules/resourceHints.js';
+import { accessibilityRule } from './rules/accessibility.js';
+import { seoChecksRule } from './rules/seoChecks.js';
+import { securityHeadersRule } from './rules/securityHeaders.js';
 
 export function getDefaultRules(): AnalysisRule[] {
   return [
@@ -14,5 +17,8 @@ export function getDefaultRules(): AnalysisRule[] {
     imageOptimizationRule,
     thirdPartyImpactRule,
     resourceHintsRule,
+    accessibilityRule,
+    seoChecksRule,
+    securityHeadersRule,
   ];
 }

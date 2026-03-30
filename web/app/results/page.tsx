@@ -21,11 +21,15 @@ import type { AnalyzeOutput, PageType, ScannedPage } from "@/types/analyzer";
 import { AnalyzingScreen } from "@/components/AnalyzingScreen";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { MetadataBar } from "@/components/MetadataBar";
+import { SummaryBanner } from "@/components/SummaryBanner";
 import { CategoryChart } from "@/components/CategoryChart";
+import { ResourceBreakdown } from "@/components/ResourceBreakdown";
 import { IssueCard } from "@/components/IssueCard";
+import { PositiveFindings } from "@/components/PositiveFindings";
 import { AppTable } from "@/components/AppTable";
 import { AIInsights } from "@/components/AIInsights";
 import { WaterfallChart } from "@/components/WaterfallChart";
+import { derivePositiveFindings } from "@/data/positiveChecks";
 
 type SeverityFilter = "all" | "critical" | "warning" | "info";
 
@@ -344,6 +348,9 @@ function ResultsContent() {
           cls={activeResult.metadata.cls}
         />
 
+        {/* Summary banner */}
+        <SummaryBanner issues={activeResult.issues} score={activeScore.overall} />
+
         {/* AI Insights - always at top, uses homepage data */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -511,6 +518,11 @@ function ResultsContent() {
           <CategoryChart categories={activeScore.categories} />
         </motion.div>
 
+        {/* Resource breakdown */}
+        {output.waterfall && output.waterfall.length > 0 && (
+          <ResourceBreakdown requests={output.waterfall} />
+        )}
+
         {/* Issues */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -594,6 +606,9 @@ function ResultsContent() {
             </>
           )}
         </motion.div>
+
+        {/* What's going well */}
+        <PositiveFindings findings={derivePositiveFindings(output, activeResult)} />
 
         {/* Network waterfall */}
         {output.waterfall && output.waterfall.length > 0 && (

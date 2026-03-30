@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, AlertTriangle, Info, XCircle } from "lucide-react";
+import {
+  ChevronDown,
+  AlertTriangle,
+  Info,
+  XCircle,
+  Lightbulb,
+  Wrench,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AnalysisIssue } from "@/types/analyzer";
-
+import issueMetadata, { DIFFICULTY_CONFIG } from "@/data/issueMetadata";
 
 interface IssueCardProps {
   issue: AnalysisIssue;
@@ -35,21 +42,73 @@ const SEVERITY_CONFIG = {
   },
 };
 
-const RULE_DESCRIPTIONS: Record<string, string> = {
-  "heavy-scripts": "Large JavaScript files significantly increase parse and execution time.",
-  "duplicate-libraries": "Multiple versions of the same library loaded, wasting bytes and causing potential conflicts.",
-  "render-blocking": "Scripts loaded synchronously in <head> block the browser from rendering any content.",
-  "image-optimization": "Images served without compression or modern formats (WebP/AVIF).",
-  "third-party-impact": "External scripts from third parties add latency beyond your control.",
-};
+function extractImageFormat(url: string): string | null {
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    const match = pathname.match(/\.(png|jpe?g|gif|webp|avif|bmp|tiff?|svg)(\?|$)/);
+    if (match) return match[1].replace("jpeg", "jpg").replace("tif", "tiff");
+  } catch {}
+  return null;
+}
+
+function ImagePreview({ url }: { url: string }) {
+  const [failed, setFailed] = useState(false);
+  const format = extractImageFormat(url);
+
+  if (failed) return null;
+
+  const formatColor =
+    format === "webp" || format === "avif"
+      ? "#22C55E"
+      : format === "jpg"
+        ? "#F59E0B"
+        : "#EF4444";
+
+  return (
+    <div className="flex items-start gap-3 mt-2">
+      <div
+        className="rounded-lg overflow-hidden flex-shrink-0"
+        style={{
+          border: "1px solid rgba(255,255,255,0.08)",
+          maxWidth: 120,
+          maxHeight: 80,
+          background: "rgba(0,0,0,0.2)",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt="Flagged image"
+          loading="lazy"
+          onError={() => setFailed(true)}
+          style={{ maxWidth: 120, maxHeight: 80, objectFit: "cover", display: "block" }}
+        />
+      </div>
+      {format && (
+        <span
+          className="text-xs font-mono font-medium px-2 py-0.5 rounded-md uppercase"
+          style={{
+            background: `${formatColor}18`,
+            color: formatColor,
+            border: `1px solid ${formatColor}30`,
+          }}
+        >
+          {format}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export function IssueCard({ issue, index }: IssueCardProps) {
   const [expanded, setExpanded] = useState(false);
   const config = SEVERITY_CONFIG[issue.severity] ?? SEVERITY_CONFIG.info;
   const Icon = config.icon;
+  const meta = issueMetadata[issue.ruleId];
+  const diffConfig = meta ? DIFFICULTY_CONFIG[meta.difficulty] : null;
 
-  const ruleDescription = RULE_DESCRIPTIONS[issue.ruleId];
-  const hasExtra = !!(issue.resourceUrl || issue.savingsKb);
+  const isImage =
+    issue.ruleId === "image-optimization" && !!issue.resourceUrl;
 
   return (
     <motion.div
@@ -82,12 +141,18 @@ export function IssueCard({ issue, index }: IssueCardProps) {
             >
               {config.label}
             </span>
-            <span
-              className="text-xs font-mono"
-              style={{ color: "#475569" }}
-            >
-              {issue.ruleId}
-            </span>
+            {diffConfig && (
+              <span
+                className="text-xs font-medium px-2 py-0.5 rounded-md"
+                style={{
+                  background: diffConfig.bg,
+                  color: diffConfig.color,
+                  border: `1px solid ${diffConfig.color}30`,
+                }}
+              >
+                {diffConfig.label}
+              </span>
+            )}
           </div>
           <p
             className="text-sm mt-1 leading-snug font-medium"
@@ -97,19 +162,17 @@ export function IssueCard({ issue, index }: IssueCardProps) {
           </p>
         </div>
 
-        {(hasExtra || ruleDescription) && (
-          <motion.div
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            style={{ color: "#475569", flexShrink: 0 }}
-          >
-            <ChevronDown size={16} />
-          </motion.div>
-        )}
+        <motion.div
+          animate={{ rotate: expanded ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          style={{ color: "#475569", flexShrink: 0 }}
+        >
+          <ChevronDown size={16} />
+        </motion.div>
       </button>
 
       <AnimatePresence initial={false}>
-        {expanded && (hasExtra || ruleDescription) && (
+        {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -118,25 +181,25 @@ export function IssueCard({ issue, index }: IssueCardProps) {
             style={{ overflow: "hidden" }}
           >
             <div
-              className="px-4 pb-4 pt-0 border-t space-y-2"
-              style={{ borderColor: `${config.border}` }}
+              className="px-4 pb-4 pt-0 border-t space-y-3"
+              style={{ borderColor: config.border }}
             >
-              <p
-                className="text-xs mt-3 leading-relaxed"
-                style={{ color: "#94A3B8" }}
-              >
+              {/* Issue description */}
+              <p className="text-xs mt-3 leading-relaxed" style={{ color: "#94A3B8" }}>
                 {issue.description}
               </p>
-              {ruleDescription && (
-                <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                  {ruleDescription}
-                </p>
-              )}
+
+              {/* Image preview for image-optimization issues */}
+              {isImage && <ImagePreview url={issue.resourceUrl!} />}
+
+              {/* Resource URL */}
               {issue.resourceUrl && (
                 <p className="text-xs font-mono truncate" style={{ color: "#475569" }}>
                   {issue.resourceUrl}
                 </p>
               )}
+
+              {/* Savings badge */}
               {issue.savingsKb && (
                 <span
                   className="inline-block text-xs px-2 py-0.5 rounded-md font-mono"
@@ -148,6 +211,50 @@ export function IssueCard({ issue, index }: IssueCardProps) {
                 >
                   ~{issue.savingsKb} KB savings
                 </span>
+              )}
+
+              {/* Why this matters */}
+              {meta && (
+                <div
+                  className="rounded-lg p-3 mt-1"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Lightbulb size={13} style={{ color: "#F59E0B" }} />
+                    <span className="text-xs font-semibold" style={{ color: "#CBD5E1" }}>
+                      Why this matters
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
+                    {meta.whyItMatters}
+                  </p>
+                </div>
+              )}
+
+              {/* How to fix */}
+              {meta && (
+                <div
+                  className="rounded-lg p-3"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Wrench size={13} style={{ color: "#22C55E" }} />
+                    <span className="text-xs font-semibold" style={{ color: "#CBD5E1" }}>
+                      How to fix
+                    </span>
+                  </div>
+                  <ol className="space-y-1.5 pl-4" style={{ listStyleType: "decimal" }}>
+                    {meta.howToFix.map((step, i) => (
+                      <li
+                        key={i}
+                        className="text-xs leading-relaxed"
+                        style={{ color: "#94A3B8" }}
+                      >
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               )}
             </div>
           </motion.div>

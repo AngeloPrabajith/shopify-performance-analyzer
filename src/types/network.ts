@@ -20,6 +20,33 @@ export interface ResourceHint {
   href: string;
 }
 
+export interface AccessibilityData {
+  htmlLang: string | null;
+  totalImages: number;
+  imagesWithoutAlt: number;
+  missingAltUrls: string[];
+  h1Count: number;
+  headingLevels: number[];
+  formsWithoutLabels: number;
+  totalFormInputs: number;
+  hasMainLandmark: boolean;
+}
+
+export interface SeoData {
+  title: string | null;
+  titleLength: number;
+  metaDescription: string | null;
+  metaDescriptionLength: number;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+  canonical: string | null;
+  h1Count: number;
+  h1Text: string | null;
+  hasStructuredData: boolean;
+  structuredDataTypes: string[];
+}
+
 export interface PageLoadResult {
   pageUrl: string;
   requests: NetworkRequest[];
@@ -32,4 +59,6 @@ export interface PageLoadResult {
   lcp: number | null;
   cls: number | null;
   linkedPages: { product: string | null; collection: string | null };
+  accessibilityData?: AccessibilityData;
+  seoData?: SeoData;
 }

@@ -145,6 +145,79 @@ async function scrapeOnce(
       return seen;
     });
 
+    // Collect accessibility + SEO data in one evaluate call
+    const pageAudit = await page.evaluate(() => {
+      // --- Accessibility ---
+      const imgs = document.querySelectorAll('img');
+      const imgsArr = Array.from(imgs);
+      const missingAlt = imgsArr.filter((img) => !img.hasAttribute('alt'));
+
+      const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      const headingLevels = Array.from(headings).map((h) => parseInt(h.tagName[1]));
+      const h1Elements = document.querySelectorAll('h1');
+
+      const inputs = document.querySelectorAll('input, select, textarea');
+      let formsWithoutLabels = 0;
+      for (const input of Array.from(inputs)) {
+        const id = input.getAttribute('id');
+        const hasLabel = id ? !!document.querySelector(`label[for="${id}"]`) : false;
+        const hasAriaLabel = input.hasAttribute('aria-label') || input.hasAttribute('aria-labelledby');
+        const wrappedInLabel = !!input.closest('label');
+        const isHidden = input.getAttribute('type') === 'hidden';
+        if (!isHidden && !hasLabel && !hasAriaLabel && !wrappedInLabel) formsWithoutLabels++;
+      }
+
+      const hasMainLandmark = !!(
+        document.querySelector('main') || document.querySelector('[role="main"]')
+      );
+
+      // --- SEO ---
+      const title = document.title || null;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      const metaDescription = metaDesc?.getAttribute('content') || null;
+      const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || null;
+      const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || null;
+      const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content') || null;
+      const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute('href') || null;
+
+      const structuredDataScripts = document.querySelectorAll('script[type="application/ld+json"]');
+      const structuredDataTypes: string[] = [];
+      for (const script of Array.from(structuredDataScripts)) {
+        try {
+          const data = JSON.parse(script.textContent || '');
+          if (data['@type']) structuredDataTypes.push(data['@type']);
+        } catch {}
+      }
+
+      return {
+        accessibility: {
+          htmlLang: document.documentElement.getAttribute('lang') || null,
+          totalImages: imgsArr.length,
+          imagesWithoutAlt: missingAlt.length,
+          missingAltUrls: missingAlt.slice(0, 10).map((img) => img.getAttribute('src') || ''),
+          h1Count: h1Elements.length,
+          headingLevels,
+          formsWithoutLabels,
+          totalFormInputs: Array.from(inputs).filter((i) => i.getAttribute('type') !== 'hidden').length,
+          hasMainLandmark,
+        },
+        seo: {
+          title,
+          titleLength: title ? title.length : 0,
+          metaDescription,
+          metaDescriptionLength: metaDescription ? metaDescription.length : 0,
+          ogTitle,
+          ogDescription,
+          ogImage,
+          canonical,
+          h1Count: h1Elements.length,
+          h1Text: h1Elements[0]?.textContent?.trim() || null,
+          hasStructuredData: structuredDataScripts.length > 0,
+          structuredDataTypes,
+        },
+      };
+    });
+
     // Map all captured responses to our NetworkRequest format
     const requests = await Promise.all(
       responses.map((r) => mapResponseToRequest(r).catch(() => null)),
@@ -162,6 +235,8 @@ async function scrapeOnce(
       lcp: timing.lcp,
       cls: timing.cls,
       linkedPages,
+      accessibilityData: pageAudit.accessibility,
+      seoData: pageAudit.seo,
     };
   } finally {
     await browser.close();

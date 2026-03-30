@@ -24,6 +24,9 @@ const CATEGORY_MAP: Record<string, string> = {
   'image-optimization': 'images',
   'third-party-impact': 'third-party',
   'resource-hints': 'third-party',
+  'accessibility': 'accessibility',
+  'seo-checks': 'seo',
+  'security-headers': 'security',
 };
 
 export function calculateScore(
